@@ -32,5 +32,16 @@ payload]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 		<logger level="INFO" doc:name="end Logger" doc:id="92e00feb-2bf8-4b22-a14a-aca49636bb97" message="end if the flow ---#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="e0645d90-f780-4902-ba89-67c1cbfcc627" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"code": 200,
+	"message":"successful"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
 	</flow>
 </mule>
