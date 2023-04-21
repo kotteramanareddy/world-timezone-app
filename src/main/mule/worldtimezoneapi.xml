@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="6f83531e-35c4-4602-b597-3c61b327d28e" basePath="/timezone">
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="1818e097-21e5-4d77-8067-2684c8ef7339" basePath="/api/timezone" >
+		<http:request-connection host="worldtimeapi.org" />
+	</http:request-config>
+	<flow name="worldtimezoneapiFlow" doc:id="2926e9d2-3ab7-4408-91d3-fe68c886494e" >
+		<http:listener doc:name="Listener" doc:id="1b1d84ed-8ed1-48c3-9f3f-06a853933ee3" config-ref="HTTP_Listener_config" path="/{region}/{city}"/>
+		<logger level="INFO" doc:name="start Logger" doc:id="ec79b231-ba31-4ec4-9b06-147d7d025d9a" message="--- started timezone api---"/>
+		<logger level="INFO" doc:name="debug Logger" doc:id="2666aa70-1ab2-4f69-bdc1-ae5639fedbbd" />
+		<http:request method="GET" doc:name="Request" doc:id="05a2e631-24e0-4c68-a1a8-abd3918f383b" config-ref="HTTP_Request_configuration" path="/{region}/{city}">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	city : attributes.uriParams.city,
+	region : attributes.uriParams.region
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="response payload" doc:id="00ee8219-3162-4293-a5bf-31efb6d11f29" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="end Logger" doc:id="92e00feb-2bf8-4b22-a14a-aca49636bb97" message="end if the flow ---#[payload]"/>
+	</flow>
+</mule>
